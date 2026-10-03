@@ -139,7 +139,7 @@ components:
 
 **Creative North Star: "Katalogskåpet"**
 
-Gränssnittet är möbeln i en bibliotekets läsesal. Startsidan är skåpet med sina lådfronter i manila, en låda är en öppnad låda där korten står på kant, och katalogkortet ligger framme på duken med hålet i foten där stången gick. Allt som syns ska gå att peka på i ett riktigt kortkatalogsrum: kartong, kortpapper, en sned stämpel, en rostlinje, en lapp fäst med gem. Det som inte har en motsvarighet där hör inte hemma här.
+Gränssnittet är möbeln i ett biblioteks läsesal. Startsidan är skåpet med sina lådfronter i manila, en låda är en öppnad låda där korten står på kant, och katalogkortet ligger framme på duken med hålet i foten där stången gick. Allt som syns ska gå att peka på i ett riktigt kortkatalogsrum: kartong, kortpapper, en sned stämpel, en rostlinje, en lapp fäst med gem. Det som inte har en motsvarighet där hör inte hemma här.
 
 Stämningen är saklig, torr, lugn och lågmäld. Ingenting kommenterar sig själv, inget blinkar och inget tävlar om uppmärksamheten. Sidan är luftig men inte gles: en låda med hundratals kort ska gå att skumma lika lugnt som en med tre. Gränssnittet ska kännas som pappersark, med tunna kanter och mjuka skiften, så att det är kortet som syns och inte kontrollerna runt det.
 
