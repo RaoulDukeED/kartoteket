@@ -248,21 +248,24 @@ Pappersark med en enda bestämd handling: rost för det man gör, kortpapper fö
 
 ### Inputs / Fields
 - **Style:** kortpapper, 1 px kant (`rgba(43, 38, 34, 0.18)`), 2 px hörn, 48 px höjd. Texten skrivs i Courier Prime 16 px, som på ett kort. Etiketten står ovanför i Spectral 15 px, dämpad.
-- **Focus:** 2 px rostring med 2 px avstånd.
+- **Focus:** 2 px rostring med 2 px avstånd. Inne i lådan, på manila, tar ringen rost-text, eftersom rost bara når 2,95:1 mot manila.
+- **Filter i lådan:** lådor med fler kort än en bläddring (60) får fältet "Filtrera lådan" bredvid sorteringen, 44 px högt, med etiketten till vänster som "Sortera efter". Det visar alla kort som matchar och antalet, och när inget matchar en länk till sökningen i hela katalogen. Fältet syns bara med javascript.
 
 ### Navigation
 - **Sidhuvud:** namnet Kartoteket i Spectral 600, 20 px, till vänster. Avdelningarna i 16 px till höger, dämpade, och bläck vid hover. Den aktiva avdelningen är rost och understruken med 6 px avstånd, och markeras med `aria-current`. Hela raden har en hårlinje under sig och bryts på smala skärmar.
-- **Sidokolumnen:** listor med lådor i bläck, rost vid hover. Den aktiva lådan ligger i en liten kortpappersruta med hårlinjekant och rost text. Under 760 px fälls hela kolumnen ihop bakom en rubrik med "+" och "–".
+- **Sökfältet i sidhuvudet:** längst till höger på alla sidor utom startsidan och söksidan, som har sökfältet i själva sidan. Samma fält som på startsidan men 44 px högt och 240 px brett, med etiketten dold för ögat. En liten tangent "/" i Courier Prime visar kortkommandot på skärmar med mus och försvinner när fältet får fokus. Under 760 px ligger fältet på en egen rad i full bredd under avdelningarna.
+- **Sidokolumnen:** listor med lådor i bläck, rost vid hover, varje rad minst 44 px hög. Den aktiva lådan ligger i en liten kortpappersruta med hårlinjekant och rost text. Under 760 px fälls hela kolumnen ihop bakom en rubrik med "+" och "–".
+- **Sökvägen:** länkarna har vertikal padding som ger 44 px klickyta utan att raden flyttas.
 - **Register:** bokstäver i Courier Prime som 44 × 44 px klickytor, och bokstavsrubriker i rost.
 
 ### Lådfronten (signaturkomponent)
-Manilaskiva med 1 px kant och ljuskant upptill, minst 196 px hög (132 px på smala skärmar). I mitten en etikett i kortpapper med lådans namn i Courier Prime 18 px, under den antalet kort i dämpad på manila och sist handtaget. Vid hover mörknar etikettens kant, inget annat rör sig. Högsta betyg är en bred front med etiketten i rost.
+Manilaskiva med 1 px kant och ljuskant upptill, minst 196 px hög (132 px och två per rad på smala skärmar, där etiketten fyller frontens bredd). I mitten en etikett i kortpapper med lådans namn i Courier Prime 18 px, under den antalet kort i dämpad på manila och sist handtaget. Vid hover mörknar etikettens kant, inget annat rör sig. Högsta betyg är en bred front med etiketten i rost.
 
 ### Lådan och kortraden
 Lådans insida är manila med 12 px luft. Korten står i den som rader av kortpapper med 6 px mellanrum. Varje rad har titeln (och svensk titel eller originaltitel under) till vänster, år och upphov i mitten, och längst till höger markeringar och betygsrutan. Markeringen för bok och film är "↔ film" eller "↔ bok" i rost, och bilagor markeras med en gem i dämpad ton.
 
 ### Betygsrutan
-En kvadrat på 40 × 40 px (44 px på kortet) med 1,5 px bläckkant och siffran i Courier Prime 18 px. Tior och femmor får kant och siffra i rost. Rutan är det enda som "fylls i" på kortet och ska alltid gå att läsa av utan att läsa raden.
+En kvadrat på 40 × 40 px (44 px på kortet) med 1,5 px bläckkant och siffran i Courier Prime 18 px. Tior och femmor får kant och siffra i rost. Rutan är det enda som "fylls i" på kortet och ska alltid gå att läsa av utan att läsa raden. I lådor och sökresultat är rutan dold för skärmläsare och föregås av dold text, "Betyg 8 av 10". På kortet står "Betyg:" och "av 10" redan synligt.
 
 ### Katalogkortet
 Kortpapper med hårlinjekant och kortets lyft. Kortets huvud bär typ och id till vänster och stämpeln till höger, och avslutas med en 2 px rostlinje. En lodrät rostlinje (opacitet 0,45) går 56 px in från vänster (28 px på smala skärmar), och texten börjar 72 px in. Huvuduppslaget står i versaler i rost, upphovsuppgifterna indragna 28 px, "Se även" efter en streckad linje och spårningarna sist i dämpad ton. Längst ner sitter hålet. Under kortet står källan, till exempel "Uppgifter från Libris".
@@ -276,7 +279,7 @@ Manilalapp som sticker fram bakom kortet, lutad 1,5°, med en större gem i öve
 - **Do** välj bakgrund bland duk, manila och kort, och lägg kortpapper på manila eller duk, aldrig tvärtom.
 - **Do** skriv allt som står på ett kort, i en kortrad eller i sökfältet i Courier Prime 400, och allt annat i Spectral.
 - **Do** använd 2 px hörn och 1 px kant på varje ny yta.
-- **Do** ge varje klickyta minst 44 px höjd och varje fokuserbart element 2 px rostring med 2 px avstånd.
+- **Do** ge varje klickyta minst 44 px höjd och varje fokuserbart element 2 px rostring med 2 px avstånd (rost-text på manila). Undantaget är länkar i kortets löptext, som får 5 px vertikal padding och 1,8 i radavstånd i "Se även".
 - **Do** markera aktiv låda och avdelning med `aria-current` och rost text.
 - **Do** byt dämpad text mot dämpad på manila så fort den ligger på manila.
 

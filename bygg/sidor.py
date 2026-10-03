@@ -25,7 +25,8 @@ def kort_ord(n):
 
 # ---------------------------------------------------------------- ramen
 
-def sida(titel, kropp, djup, uppdaterad, aktiv=None, beskrivning=""):
+def sida(titel, kropp, djup, uppdaterad, aktiv=None, beskrivning="", toppsok=True):
+    """toppsok=False på startsidan och söksidan, som har sökfältet i själva sidan."""
     R = "../" * djup
     cur = ' aria-current="page"'
     nav = "".join(
@@ -33,6 +34,11 @@ def sida(titel, kropp, djup, uppdaterad, aktiv=None, beskrivning=""):
         for s, namn in SEKTIONER.items()
     )
     beskr = f'<meta name="description" content="{e(beskrivning)}">' if beskrivning else ""
+    sokform = (f'<form class="toppsok" action="{R}sok/" role="search">'
+               '<label class="vh" for="toppsok">Sök i katalogen</label>'
+               '<input id="toppsok" name="q" type="search" placeholder="Sök i katalogen" '
+               'autocomplete="off" aria-keyshortcuts="/">'
+               '<kbd class="tangent" aria-hidden="true">/</kbd></form>') if toppsok else ""
     return f"""<!doctype html>
 <html lang="sv" data-rot="{R}">
 <head>
@@ -52,13 +58,13 @@ def sida(titel, kropp, djup, uppdaterad, aktiv=None, beskrivning=""):
 <header class="topp">
 <a class="namn" href="{R}./">Kartoteket</a>
 <nav aria-label="Avdelningar">{nav}</nav>
+{sokform}
 </header>
 <main id="innehall">
 {kropp}
 </main>
 <footer class="fot">
 <p>Uppdaterad {datum_text(uppdaterad)}. Betygen kommer från Goodreads och IMDb, bokuppgifterna från Libris.</p>
-<p><a href="{R}sok/">Sök i katalogen</a></p>
 </footer>
 </div>
 </body>
@@ -78,12 +84,27 @@ def slumpknapp(R, reserv, klass="knapp"):
     return f'<a class="{klass}" href="{R}{e(reserv)}" data-slump>Dra ett kort på måfå</a>'
 
 
+def reserv_for(K, k, uppdaterad):
+    """Kortet som "Dra ett kort på måfå" leder till utan javascript: ett annat kort,
+    olika för olika kort och nytt för varje byggdag."""
+    n = len(K.kort)
+    siffror = int("".join(c for c in k["id"] if c.isdigit()) or 0)
+    j = (siffror * 7919 + uppdaterad.toordinal()) % n
+    if K.kort[j] is k:
+        j = (j + 1) % n
+    return K.kort[j]["url"]
+
+
 # ---------------------------------------------------------------- rader i lådan
 
-def betygsruta(k, klass="betyg"):
+def betygsruta(k, klass="betyg", las_upp=True):
+    """las_upp lägger till dold text för skärmläsare. På kortet står "Betyg:" och "av 10" synligt."""
     hog = " hog" if k["betyg"] == k["skala"] else ""
-    return (f'<span class="{klass}{hog}" aria-label="Betyg {k["betyg"]} av {k["skala"]}">'
-            f'{k["betyg"] or "–"}</span>')
+    siffra = k["betyg"] or "–"
+    if not las_upp:
+        return f'<span class="{klass}{hog}">{siffra}</span>'
+    upplast = f'Betyg {k["betyg"]} av {k["skala"]}' if k["betyg"] else "Inget betyg"
+    return f'<span class="vh">{upplast}</span><span class="{klass}{hog}" aria-hidden="true">{siffra}</span>'
 
 
 def rad(k, R, visa_upphov=True, visa_sektion=False):
@@ -123,8 +144,19 @@ def kortlista(kort, R, sortering, visa_upphov=True, visa_sektion=False, sektion=
         for kod, namn in (("t", "Titel"), ("y", ar_namn), ("r", "Betyg"))
     )
     rader = "".join(rad(k, R, visa_upphov, visa_sektion) for k in kort)
+    # Stora lådor får ett filter, så att ett kort går att slå upp utan att bläddra.
+    filtrera = ""
+    if len(kort) > VISNING:
+        filtrera = f"""<div class="filter">
+<label for="filter">Filtrera lådan</label>
+<input id="filter" type="search" autocomplete="off" placeholder="titel, namn eller år" data-sok="{R}sok/">
+</div>"""
     return f"""<div class="lista">
+<div class="verktyg">
 <div class="sortering" role="group" aria-label="Sortering"><span>Sortera efter</span>{knappar}</div>
+{filtrera}
+</div>
+<p class="filter-status" role="status" hidden></p>
 <div class="lada-innehall">
 <ul class="kortlista" data-visa="{VISNING}">{rader}</ul>
 <div class="bladdra" hidden><span></span><button type="button">Bläddra vidare</button></div>
@@ -341,7 +373,7 @@ def kort_sida(K, k, uppdaterad):
         stycke1 = "".join(rader)
 
     genre = f'<div>Genre: {e(", ".join(g.lower() for g in k["genre"]))}.</div>' if k["genre"] else ""
-    betyg = (f'<div class="betygsrad"><span>Betyg:</span>{betygsruta(k, "betyg stor")}'
+    betyg = (f'<div class="betygsrad"><span>Betyg:</span>{betygsruta(k, "betyg stor", las_upp=False)}'
              f'<span class="dampad">av {k["skala"]}</span></div>')
 
     # Se även
@@ -426,7 +458,7 @@ def kort_sida(K, k, uppdaterad):
     bladdra = '<nav class="kort-nav" aria-label="Bläddra i lådan">'
     bladdra += (f'<a class="fore" href="{R}{e(fore["url"])}"><span>Föregående kort</span>'
                 f'<span class="kt">{e(fore["titel"])}</span></a>') if fore else "<span></span>"
-    bladdra += slumpknapp(R, k["url"])
+    bladdra += slumpknapp(R, reserv_for(K, k, uppdaterad))
     bladdra += (f'<a class="nasta" href="{R}{e(nasta["url"])}"><span>Nästa kort</span>'
                 f'<span class="kt">{e(nasta["titel"])}</span></a>') if nasta else "<span></span>"
     bladdra += "</nav>"
@@ -492,23 +524,28 @@ def start_sida(K, texter, uppdaterad, reserv):
 <h2>Om betygen</h2>
 <div>{texter["om betygen"]}</div>
 </section>"""
-    return sida(f"{texter['rubrik']} | Kartoteket", kropp, 0, uppdaterad, beskrivning=texter["beskrivning"])
+    return sida(f"{texter['rubrik']} | Kartoteket", kropp, 0, uppdaterad, beskrivning=texter["beskrivning"],
+                toppsok=False)
 
 
-def sok_sida(uppdaterad):
+def sok_sida(uppdaterad, reserv):
     R = "../"
+    avdelningar = ", ".join(f'<a href="{R}{s}/">{namn}</a>' for s, namn in list(SEKTIONER.items())[:-1])
+    sista_s, sista_namn = list(SEKTIONER.items())[-1]
     kropp = f"""<div class="rubrikrad">
 {sokvag(R, [("Sök", None)])}
 <div class="rubrik"><h1>Sök i katalogen</h1></div>
 </div>
 <form class="sok sok-sida" action="./" role="search">
-<label for="sok">Titel, upphov, översättare eller år</label>
-<div class="sok-falt"><input id="sok" name="q" type="search" autocomplete="off"><button class="knapp" type="submit">Sök</button></div>
+<label for="sok">Titel, upphov, genre eller år</label>
+<div class="sok-falt"><input id="sok" name="q" type="search" autocomplete="off" aria-keyshortcuts="/"><button class="knapp" type="submit">Sök</button></div>
 </form>
-<p class="sok-status" aria-live="polite"></p>
+<p class="sok-status"></p>
+<p class="vh" role="status"></p>
 <div class="lada-innehall sok-resultat" hidden><ul class="kortlista"></ul></div>
+<p class="sok-tomt" hidden>Bläddra i {avdelningar} eller <a href="{R}{sista_s}/">{sista_namn}</a>, eller <a href="{R}{e(reserv)}" data-slump>dra ett kort på måfå</a>.</p>
 <noscript><p>Sökningen behöver javascript. Bläddra i lådorna i stället.</p></noscript>"""
-    return sida("Sök | Kartoteket", kropp, 1, uppdaterad)
+    return sida("Sök | Kartoteket", kropp, 1, uppdaterad, toppsok=False)
 
 
 def saknas_sida(uppdaterad, bas):
@@ -519,6 +556,7 @@ def saknas_sida(uppdaterad, bas):
     # 404-sidan kan visas på vilken adress som helst, så den länkar från sajtens rot.
     return html.replace('data-rot=""', f'data-rot="{bas}"').replace('href="stil.css"', f'href="{bas}stil.css"') \
         .replace('src="kartotek.js"', f'src="{bas}kartotek.js"').replace('href="ikon.svg"', f'href="{bas}ikon.svg"') \
-        .replace('href="./"', f'href="{bas}"').replace('href="sok/"', f'href="{bas}sok/"') \
+        .replace('href="./"', f'href="{bas}"').replace('action="sok/"', f'action="{bas}sok/"') \
+        .replace('href="typsnitt/', f'href="{bas}typsnitt/') \
         .replace('href="bocker/"', f'href="{bas}bocker/"').replace('href="film/"', f'href="{bas}film/"') \
         .replace('href="tv-serier/"', f'href="{bas}tv-serier/"').replace('href="spel/"', f'href="{bas}spel/"')
