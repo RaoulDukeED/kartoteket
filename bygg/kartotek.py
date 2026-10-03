@@ -154,9 +154,13 @@ def las_bocker():
             serie, serie_nr = m[1].strip(), m[2].lstrip("0") or "0"
             titel = titel[: m.start()].strip()
         titel = re.sub(r"\s*\((Swedish|English) Edition\)$", "", titel)
+        # Goodreads har enstaka titlar i gemener; versal i början är ingen ändring av uppgiften.
+        titel = titel[:1].upper() + titel[1:]
         huvud, under = titel, ""
         if re.search(r":\s", titel):
             huvud, under = [t.strip() for t in re.split(r"\s*:\s+", titel, 1)]
+        elif " - " in titel:   # "Till Esmé - kärleksfullt och solkigt"
+            huvud, under = [t.strip() for t in titel.split(" - ", 1)]
         forfattare = laga(r["Author"])
         okand = forfattare in ("Unknown Author", "")
         isbn = re.sub(r'[="\s]', "", r["ISBN"])

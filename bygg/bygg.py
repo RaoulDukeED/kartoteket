@@ -75,6 +75,16 @@ def sokindex(K):
         extra = [kartotek.rak(o) for o in k["oversattare"]] + ([k["serie"]] if k.get("serie") else [])
         if extra:
             post["o"] = " ".join(extra)
+        if k["genre"]:
+            post["g"] = ", ".join(g.lower() for g in k["genre"])
+        # Upphovet till kopplade verk, så att "chandler" också hittar filmatiseringarna.
+        kopplade = []
+        for annat_id, _ in k["kopplingar"]:
+            a = K.efter_id[annat_id]
+            kopplade += [a["upphov_text"]] + a["upphov"]
+        kopplade = [x for x in dict.fromkeys(kopplade) if x]
+        if kopplade:
+            post["c"] = " ".join(kopplade)
         poster.append(post)
     return json.dumps(poster, ensure_ascii=False, separators=(",", ":"))
 
@@ -96,9 +106,10 @@ def main():
         shutil.copy(ROT / "CNAME", UT / "CNAME")
 
     texter = las_texter(K)
-    reserv = K.lador["hogsta-betyg"]["kort"][0]["url"] if K.lador.get("hogsta-betyg") else K.kort[0]["url"]
+    # Kortet som "Dra ett kort på måfå" leder till utan javascript byts varje byggdag.
+    reserv = K.kort[uppdaterad.toordinal() % len(K.kort)]["url"]
     skriv("index.html", sidor.start_sida(K, texter, uppdaterad, reserv))
-    skriv("sok/index.html", sidor.sok_sida(uppdaterad))
+    skriv("sok/index.html", sidor.sok_sida(uppdaterad, reserv))
     skriv("404.html", sidor.saknas_sida(uppdaterad, bas))
     skriv("sok.json", sokindex(K))
 

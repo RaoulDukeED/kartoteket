@@ -88,6 +88,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, summary:focus-visibl
 
 h1, h2 { font-weight: 400; }
 
+/* Bara för skärmläsare */
+.vh {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
 .hoppa {
   position: absolute; left: 16px; top: -100px;
   background: var(--kort); padding: 10px 16px; border: 1px solid var(--kant); z-index: 10;
@@ -109,13 +115,33 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
 /* ---------------------------------------------------- topp och fot */
 
 .topp {
-  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center;
+  display: flex; flex-wrap: wrap; align-items: center;
   gap: 0 32px; border-bottom: 1px solid var(--harlinje);
 }
 .topp .namn {
   padding: 12px 0; font-weight: 600; font-size: 20px; color: var(--black); text-decoration: none;
 }
-.topp nav { display: flex; flex-wrap: wrap; gap: 0 24px; font-size: 16px; }
+.topp nav { display: flex; flex-wrap: wrap; gap: 0 24px; margin-left: auto; font-size: 16px; }
+
+/* Sökfältet i sidhuvudet: kortpapper med skrivmaskinstext, som sökfältet på startsidan */
+.toppsok { position: relative; flex: 0 1 240px; min-width: 0; padding: 8px 0; }
+.toppsok input {
+  height: 44px; width: 100%; padding: 0 40px 0 12px;
+  background: var(--kort); color: var(--black);
+  border: 1px solid rgba(43, 38, 34, 0.18); border-radius: 2px;
+  font-family: var(--maskin); font-size: 16px;
+}
+.toppsok input::placeholder { color: var(--dampad); opacity: 1; }
+.tangent {
+  display: none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  min-width: 22px; padding: 0 5px; text-align: center;
+  border: 1px solid var(--kant); border-radius: 2px;
+  font-family: var(--maskin); font-size: 14px; line-height: 20px; color: var(--dampad);
+  pointer-events: none;
+}
+.js .tangent { display: block; }
+.toppsok input:focus + .tangent, .toppsok input:not(:placeholder-shown) + .tangent { display: none; }
+@media (hover: none) { .js .tangent { display: none; } }
 .topp nav a { padding: 12px 0; min-height: 44px; display: inline-flex; align-items: center; color: var(--dampad); text-decoration: none; }
 .topp nav a:hover { color: var(--black); }
 .topp nav a[aria-current] { color: var(--rost-text); text-decoration: underline; text-underline-offset: 6px; }
@@ -131,6 +157,8 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
 
 .rubrikrad { display: flex; flex-direction: column; gap: 8px; }
 .sokvag { font-size: 15px; color: var(--dampad); }
+/* Vertikal padding på inline-länkar ger 44 px klickyta utan att flytta raden. */
+.sokvag a { padding: 11px 0; }
 .rubrik { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 20px; }
 .rubrik h1 { margin: 0; font-size: 44px; line-height: 1.1; letter-spacing: -0.01em; overflow-wrap: anywhere; }
 .antal-kort { font-size: 16px; color: var(--dampad); }
@@ -154,7 +182,7 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
 .sok-sida { flex: none; max-width: 560px; }
 .sok-falt { display: flex; gap: 8px; }
 .sok-falt input { flex: 1; min-width: 0; }
-.sok-status { margin: 0; color: var(--dampad); }
+.sok-status, .sok-tomt { margin: 0; color: var(--dampad); }
 
 .skap { display: flex; flex-wrap: wrap; gap: 16px; }
 .front {
@@ -196,7 +224,7 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
   display: flex; flex-wrap: wrap; gap: 8px 48px;
 }
 .om h2 { margin: 0; flex: 0 0 160px; font-weight: 600; font-size: 18px; line-height: 1.5; }
-.om > div { flex: 1 1 420px; max-width: 640px; font-size: 17px; line-height: 1.6; color: var(--dampad-manila); }
+.om > div { flex: 1 1 420px; max-width: 34em; font-size: 17px; line-height: 1.6; color: var(--dampad); }
 .om p { margin: 0 0 12px; }
 
 /* ---------------------------------------------------- lådsidan */
@@ -216,7 +244,7 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
 .block h2 { margin: 0 0 6px; font-weight: 600; font-size: 16px; line-height: 1.4; }
 .block ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .block a {
-  display: block; padding: 6px 0; min-height: 36px;
+  display: flex; align-items: center; gap: 0.3em; padding: 6px 0; min-height: 44px;
   color: var(--black); text-decoration: none;
 }
 .block a:hover { color: var(--rost-text); }
@@ -240,11 +268,26 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
 }
 .sortering button[aria-pressed="true"] { background: var(--rost); border-color: var(--rost); color: #FFFFFF; }
 
+.verktyg { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 24px; }
+.filter { display: none; flex: 0 1 340px; min-width: 0; align-items: center; gap: 10px; font-size: 15px; }
+.js .filter { display: flex; }
+.filter label { color: var(--dampad); white-space: nowrap; }
+.filter input {
+  flex: 1; min-width: 0; height: 44px; padding: 0 12px;
+  background: var(--kort); color: var(--black);
+  border: 1px solid rgba(43, 38, 34, 0.18); border-radius: 2px;
+  font-family: var(--maskin); font-size: 16px;
+}
+.filter input::placeholder { color: var(--dampad); opacity: 1; }
+.filter-status { margin: 0; font-size: 15px; color: var(--dampad); }
+
 .lada-innehall {
   background: var(--manila); padding: 12px;
   border: 1px solid var(--kant); border-radius: 2px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
 }
+/* Rost når bara 2,95:1 mot manila; fokusringen inne i lådan tar den mörkare rosten. */
+.lada-innehall :focus-visible { outline-color: var(--rost-text); }
 .kortlista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .kortlista li[hidden] { display: none; }
 .kortlista a {
@@ -341,7 +384,9 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
 .betygsrad { display: flex; align-items: center; gap: 14px; }
 .betyg.stor { min-width: 44px; height: 44px; font-size: 20px; }
 .dampad { color: var(--dampad); }
-.se-aven { border-top: 1px dashed rgba(43, 38, 34, 0.3); padding-top: 14px; display: flex; flex-direction: column; gap: 6px; }
+.se-aven { border-top: 1px dashed rgba(43, 38, 34, 0.3); padding-top: 14px; display: flex; flex-direction: column; gap: 6px; line-height: 1.8; }
+/* Länkarna i löptexten får högre klickyta utan att raderna glider isär eller ytorna överlappar. */
+.kort-kropp a { padding: 5px 0; }
 .sparning { margin-top: 32px; padding-left: 72px; font-size: 15px; color: var(--dampad); }
 .hal {
   position: absolute; left: 50%; bottom: 18px; width: 26px; height: 26px; margin-left: -13px;
@@ -382,7 +427,14 @@ main { display: flex; flex-direction: column; gap: 32px; flex: 1; }
   main { gap: 24px; }
   .intro h1 { font-size: 44px; }
   .rubrik h1 { font-size: 36px; }
-  .front { min-height: 132px; flex-basis: 140px; }
+  /* Två lådfronter per rad: etiketten fyller fronten i stället för att ha en minsta bredd. */
+  .front { min-height: 132px; flex-basis: 140px; padding: 20px 12px 18px; }
+  .front .etikett { min-width: 0; width: 100%; padding: 8px 10px; }
+  .front.bred .etikett { width: auto; }
+  .topp nav { margin-left: 0; }
+  .toppsok { flex: 1 1 100%; padding: 0 0 12px; }
+  .js .tangent { display: none; }
+  .filter { flex-basis: 100%; }
   .lada-layout { gap: 20px; }
   .sidokolumn { flex-basis: 100%; border-bottom: 1px solid var(--harlinje); padding-bottom: 12px; }
   .sidokolumn summary { display: flex; }
