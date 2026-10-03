@@ -13,8 +13,6 @@ Läst och sett
 
 En personlig katalog över böcker, filmer, tv-serier och spel. {kort} kort, ordnade som i ett gammalt bibliotek.
 
-Här finns inget flöde och ingen lista över det senaste. Öppna en låda, sök efter något eller dra ett kort på måfå och följ hänvisningarna därifrån.
-
 ## Om betygen
 
 Böckerna har betyg från 1 till 5, och filmer, tv-serier och spel har betyg från 1 till 10. Alla betyg är mina egna.

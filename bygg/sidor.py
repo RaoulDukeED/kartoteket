@@ -230,7 +230,7 @@ def lada_sida(K, lada, uppdaterad):
 {sidokolumn(K, R, s, lada["slug"])}
 {kortlista(lada["kort"], R, lada["sortering"], visa_upphov, visa_sektion=s is None, sektion=s)}
 </div>"""
-    titel = f"{rubrik} – Kartoteket" if lada["slug"] == s or not s else f"{rubrik} – {SEKTIONER[s]} – Kartoteket"
+    titel = f"{rubrik} | Kartoteket" if lada["slug"] == s or not s else f"{rubrik}, {SEKTIONER[s]} | Kartoteket"
     return sida(titel, kropp, djup, uppdaterad, aktiv=s)
 
 
@@ -264,7 +264,7 @@ def grupp_sida(K, grupp, uppdaterad):
 {sidokolumn(K, R, s, grupp)}
 <div class="lista">{innehall}</div>
 </div>"""
-    return sida(f"{g['namn']} – {SEKTIONER[s]} – Kartoteket", kropp, djup, uppdaterad, aktiv=s)
+    return sida(f"{g['namn']}, {SEKTIONER[s]} | Kartoteket", kropp, djup, uppdaterad, aktiv=s)
 
 
 # ---------------------------------------------------------------- katalogkortet
@@ -444,10 +444,10 @@ def kort_sida(K, k, uppdaterad):
 </div>
 {bladdra}"""
     if s == "bocker" and k["upphov_text"]:
-        titel = f'{k["titel"]} – {k["upphov_text"]} – Kartoteket'
+        titel = f'{k["titel"]}, {k["upphov_text"]} | Kartoteket'
     else:
         ar_text = f' ({k["ar"]})' if k["ar"] else ""
-        titel = f'{k["titel"]}{ar_text} – Kartoteket'
+        titel = f'{k["titel"]}{ar_text} | Kartoteket'
     beskrivning = f'{k["typ_sv"]}: {k["titel"]}' + (f', {k["upphov_text"]}' if k["upphov_text"] else "") + \
         f'. Betyg {k["betyg"]} av {k["skala"]}.'
     return sida(titel, kropp, 2, uppdaterad, aktiv=s, beskrivning=beskrivning)
@@ -492,7 +492,7 @@ def start_sida(K, texter, uppdaterad, reserv):
 <h2>Om betygen</h2>
 <div>{texter["om betygen"]}</div>
 </section>"""
-    return sida(f"{texter['rubrik']} – Kartoteket", kropp, 0, uppdaterad, beskrivning=texter["beskrivning"])
+    return sida(f"{texter['rubrik']} | Kartoteket", kropp, 0, uppdaterad, beskrivning=texter["beskrivning"])
 
 
 def sok_sida(uppdaterad):
@@ -508,14 +508,14 @@ def sok_sida(uppdaterad):
 <p class="sok-status" aria-live="polite"></p>
 <div class="lada-innehall sok-resultat" hidden><ul class="kortlista"></ul></div>
 <noscript><p>Sökningen behöver javascript. Bläddra i lådorna i stället.</p></noscript>"""
-    return sida("Sök – Kartoteket", kropp, 1, uppdaterad)
+    return sida("Sök | Kartoteket", kropp, 1, uppdaterad)
 
 
 def saknas_sida(uppdaterad, bas):
     kropp = f"""<div class="rubrikrad"><div class="rubrik"><h1>Kortet finns inte</h1></div></div>
 <p class="ingress">Det här kortet finns inte i kartoteket, eller så har det flyttats.</p>
 <p><a class="knapp" href="{bas}">Till katalogskåpet</a></p>"""
-    html = sida("Kortet finns inte – Kartoteket", kropp, 0, uppdaterad)
+    html = sida("Kortet finns inte | Kartoteket", kropp, 0, uppdaterad)
     # 404-sidan kan visas på vilken adress som helst, så den länkar från sajtens rot.
     return html.replace('data-rot=""', f'data-rot="{bas}"').replace('href="stil.css"', f'href="{bas}stil.css"') \
         .replace('src="kartotek.js"', f'src="{bas}kartotek.js"').replace('href="ikon.svg"', f'href="{bas}ikon.svg"') \
