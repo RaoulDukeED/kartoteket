@@ -1,0 +1,81 @@
+name: Bygg och publicera
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Ingen behörighet som standard. Varje jobb får bara det det behöver.
+permissions: {}
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  bygg:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Nya böcker slås upp i Libris vid varje bygge. Resultatet sparas inte i
+      # repot (jobbet får inte skriva), men laddas upp som artefakt nedan.
+      - name: Berika nya böcker via Libris
+        run: python bygg/libris.py
+
+      - name: Böcker som saknar genre
+        run: |
+          {
+            echo "## Böcker som saknar genre"
+            if [ "$(wc -l < rapport/att_fylla_i.csv)" -le 1 ]; then
+              echo "Alla böcker har genre."
+            else
+              echo "Fyll i dem i data/genre_manuellt.csv:"
+              echo '```'
+              cat rapport/att_fylla_i.csv
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: libris-och-rapport
+          path: |
+            data/libris_berikning.json
+            rapport/att_fylla_i.csv
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Bygg sajten
+        env:
+          KARTOTEK_BAS: ${{ steps.pages.outputs.base_path }}/
+        run: python bygg/bygg.py
+
+      - name: Kontrollera länkar
+        run: python bygg/lankkoll.py
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  publicera:
+    needs: bygg
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
